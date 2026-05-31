@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
   FlatList,
+  Modal,
   StyleSheet,
   Text,
   TextInput,
@@ -24,6 +25,7 @@ export default function HomeScreen() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [suggestedCategories, setSuggestedCategories] = useState<string[]>([]);
+  const [showModal, setShowModal] = useState(false);
   const animatedValue = useRef(new Animated.Value(0)).current;
 
   const addTransaction = () => {
@@ -40,6 +42,7 @@ export default function HomeScreen() {
     setAmount("");
     setCategory("");
     setDate(new Date());
+    setShowModal(false);
   };
 
   const handleDateChange = (event: any, selectedDate: Date | undefined) => {
@@ -107,87 +110,11 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Облік витрат</Text>
+      <Text style={styles.title}>Витрати</Text>
 
       <Text style={styles.total}>
         Всього: {total.toFixed(2)} ₴
       </Text>
-
-      <TextInput
-        style={[styles.input, !isAmountValid && amount !== "" && styles.inputError]}
-        placeholder="Сума"
-        keyboardType="numeric"
-        value={amount}
-        onChangeText={setAmount}
-      />
-
-      {!isAmountValid && amount !== "" && (
-        <Text style={styles.helpText}>Сума може мати лише цифри та десяткову крапку</Text>
-      )}
-
-      <TextInput
-        style={styles.input}
-        placeholder="Категорія"
-        value={category}
-        onChangeText={handleCategoryChange}
-      />
-
-      {suggestedCategories.length > 0 && (
-        <Animated.View
-          style={[
-            styles.suggestionsContainer,
-            {
-              opacity: animatedValue,
-              transform: [
-                {
-                  scale: animatedValue.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [0.9, 1],
-                  }),
-                },
-              ],
-            },
-          ]}
-        >
-          {suggestedCategories.map((cat) => (
-            <TouchableOpacity
-              key={cat}
-              style={styles.suggestionItem}
-              onPress={() => selectCategory(cat)}
-            >
-              <Text style={styles.suggestionText}>{cat}</Text>
-            </TouchableOpacity>
-          ))}
-        </Animated.View>
-      )}
-
-      <TouchableOpacity
-        style={styles.dateButton}
-        onPress={() => setShowDatePicker(true)}
-      >
-        <Text style={styles.dateButtonText}>
-          Дата: {date.toLocaleDateString()}
-        </Text>
-      </TouchableOpacity>
-
-      {showDatePicker && (
-        <DateTimePicker
-          value={date}
-          mode="date"
-          display="default"
-          onChange={handleDateChange}
-        />
-      )}
-
-      <TouchableOpacity
-        style={[styles.button, !isFormComplete && styles.buttonDisabled]}
-        onPress={addTransaction}
-        disabled={!isFormComplete}
-      >
-        <Text style={[styles.buttonText, !isFormComplete && styles.buttonDisabledText]}>
-          Додати транзакцію
-        </Text>
-      </TouchableOpacity>
 
       <FlatList
         data={Object.keys(grouped)}
@@ -210,6 +137,107 @@ export default function HomeScreen() {
           </View>
         )}
       />
+
+      <TouchableOpacity
+        style={styles.floatingButton}
+        onPress={() => setShowModal(true)}
+      >
+        <Text style={styles.floatingButtonText}>+</Text>
+      </TouchableOpacity>
+
+      <Modal
+        visible={showModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setShowModal(false)}
+            >
+              <Text style={styles.closeButtonText}>✕</Text>
+            </TouchableOpacity>
+
+            <TextInput
+              style={[styles.input, !isAmountValid && amount !== "" && styles.inputError]}
+              placeholder="Сума"
+              keyboardType="numeric"
+              value={amount}
+              onChangeText={setAmount}
+            />
+
+            {!isAmountValid && amount !== "" && (
+              <Text style={styles.helpText}>Сума може мати лише цифри та десяткову крапку</Text>
+            )}
+
+            <TextInput
+              style={styles.input}
+              placeholder="Категорія"
+              value={category}
+              onChangeText={handleCategoryChange}
+            />
+
+            {suggestedCategories.length > 0 && (
+              <Animated.View
+                style={[
+                  styles.suggestionsContainer,
+                  {
+                    opacity: animatedValue,
+                    transform: [
+                      {
+                        scale: animatedValue.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [0.9, 1],
+                        }),
+                      },
+                    ],
+                  },
+                ]}
+              >
+                {suggestedCategories.map((cat) => (
+                  <TouchableOpacity
+                    key={cat}
+                    style={styles.suggestionItem}
+                    onPress={() => selectCategory(cat)}
+                  >
+                    <Text style={styles.suggestionText}>{cat}</Text>
+                  </TouchableOpacity>
+                ))}
+              </Animated.View>
+            )}
+
+            <TouchableOpacity
+              style={styles.dateButton}
+              onPress={() => setShowDatePicker(true)}
+            >
+              <Text style={styles.dateButtonText}>
+                Дата: {date.toLocaleDateString()}
+              </Text>
+            </TouchableOpacity>
+
+            {showDatePicker && (
+              <DateTimePicker
+                value={date}
+                mode="date"
+                display="default"
+                onChange={handleDateChange}
+              />
+            )}
+
+            <TouchableOpacity
+              style={[styles.button, !isFormComplete && styles.buttonDisabled]}
+              onPress={addTransaction}
+              disabled={!isFormComplete}
+            >
+              <Text style={[styles.buttonText, !isFormComplete && styles.buttonDisabledText]}>
+                Додати транзакцію
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -308,5 +336,50 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     marginVertical: 2,
+  },
+  floatingButton: {
+    position: "absolute",
+    bottom: 80,
+    right: 20,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: "#007AFF",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  floatingButtonText: {
+    fontSize: 32,
+    color: "white",
+    fontWeight: "bold",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "flex-end",
+  },
+  modalContent: {
+    backgroundColor: "white",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    paddingBottom: 40,
+    maxHeight: "80%",
+  },
+  closeButton: {
+    alignSelf: "flex-end",
+    marginBottom: 15,
+  },
+  closeButtonText: {
+    fontSize: 28,
+    color: "#999",
   },
 });
