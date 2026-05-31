@@ -1,6 +1,7 @@
 import DateTimePicker from "@react-native-community/datetimepicker";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
+  Animated,
   FlatList,
   StyleSheet,
   Text,
@@ -23,6 +24,7 @@ export default function HomeScreen() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [suggestedCategories, setSuggestedCategories] = useState<string[]>([]);
+  const animatedValue = useRef(new Animated.Value(0)).current;
 
   const addTransaction = () => {
     if (!amount || !category) return;
@@ -67,6 +69,21 @@ export default function HomeScreen() {
     setCategory(selectedCategory);
     setSuggestedCategories([]);
   };
+
+  useEffect(() => {
+    if (suggestedCategories.length > 0) {
+      Animated.spring(animatedValue, {
+        toValue: 1,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      Animated.timing(animatedValue, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [suggestedCategories]);
 
   const isAmountValid = amount === "" ? false : !isNaN(Number(amount)) && Number(amount) > 0;
   const isFormComplete = amount && category && isAmountValid;
@@ -116,7 +133,22 @@ export default function HomeScreen() {
       />
 
       {suggestedCategories.length > 0 && (
-        <View style={styles.suggestionsContainer}>
+        <Animated.View
+          style={[
+            styles.suggestionsContainer,
+            {
+              opacity: animatedValue,
+              transform: [
+                {
+                  scale: animatedValue.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0.9, 1],
+                  }),
+                },
+              ],
+            },
+          ]}
+        >
           {suggestedCategories.map((cat) => (
             <TouchableOpacity
               key={cat}
@@ -126,7 +158,7 @@ export default function HomeScreen() {
               <Text style={styles.suggestionText}>{cat}</Text>
             </TouchableOpacity>
           ))}
-        </View>
+        </Animated.View>
       )}
 
       <TouchableOpacity
@@ -247,11 +279,9 @@ const styles = StyleSheet.create({
   suggestionsContainer: {
     borderWidth: 1,
     borderColor: "#ccc",
-    borderTopWidth: 0,
-    marginTop: -10,
+    marginTop: -8,
     marginBottom: 10,
-    borderBottomLeftRadius: 8,
-    borderBottomRightRadius: 8,
+    borderRadius: 8,
     backgroundColor: "#fff",
   },
   suggestionItem: {
