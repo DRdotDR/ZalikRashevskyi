@@ -58,6 +58,10 @@ export default function HomeScreen() {
     setSuggestedCategories([]);
   };
 
+  const handleDeleteTransaction = (id: string) => {
+    setTransactions(transactions.filter((t) => t.id !== id));
+  };
+
   const isAmountValid =
     amount === "" ? false : !isNaN(Number(amount)) && Number(amount) > 0;
   const isFormComplete = Boolean(amount && category && isAmountValid);
@@ -70,7 +74,10 @@ export default function HomeScreen() {
 
       <Text style={styles.total}>Всього: {total.toFixed(2)} ₴</Text>
 
-      <TransactionList transactions={transactions} />
+      <TransactionList
+        transactions={transactions}
+        onDeleteTransaction={handleDeleteTransaction}
+      />
 
       <TouchableOpacity
         style={styles.floatingButton}
@@ -104,7 +111,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    paddingTop: 60,
+    paddingTop: 20,
   },
   title: {
     fontSize: 28,

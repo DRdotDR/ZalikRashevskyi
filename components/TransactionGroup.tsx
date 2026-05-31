@@ -1,25 +1,29 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Transaction } from "../types/Transaction";
+import { TransactionItem } from "./TransactionItem";
 
 interface TransactionGroupProps {
   date: string;
   transactions: Transaction[];
+  onDeleteTransaction: (id: string) => void;
 }
 
 export const TransactionGroup: React.FC<TransactionGroupProps> = ({
   date,
   transactions,
+  onDeleteTransaction,
 }) => {
   return (
     <View style={styles.group}>
       <Text style={styles.date}>{date}</Text>
 
       {transactions.map((transaction) => (
-        <View key={transaction.id} style={styles.transaction}>
-          <Text>{transaction.category}</Text>
-          <Text>{transaction.amount.toFixed(2)} ₴</Text>
-        </View>
+        <TransactionItem
+          key={transaction.id}
+          transaction={transaction}
+          onDelete={onDeleteTransaction}
+        />
       ))}
     </View>
   );
@@ -36,10 +40,5 @@ const styles = StyleSheet.create({
   date: {
     fontWeight: "bold",
     marginBottom: 5,
-  },
-  transaction: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginVertical: 2,
   },
 });
