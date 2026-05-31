@@ -46,6 +46,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
   onSubmit,
 }) => {
   const animatedValue = useRef(new Animated.Value(0)).current;
+  const helpTextAnimatedValue = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (suggestedCategories.length > 0) {
@@ -61,6 +62,22 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
       }).start();
     }
   }, [suggestedCategories, animatedValue]);
+
+  useEffect(() => {
+    const shouldShowHelpText = !isAmountValid && amount !== "";
+    if (shouldShowHelpText) {
+      Animated.spring(helpTextAnimatedValue, {
+        toValue: 1,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      Animated.timing(helpTextAnimatedValue, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [isAmountValid, amount, helpTextAnimatedValue]);
 
   return (
     <Modal
@@ -87,9 +104,23 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
           />
 
           {!isAmountValid && amount !== "" && (
-            <Text style={styles.helpText}>
-              Сума може мати лише цифри та десяткову крапку
-            </Text>
+            <Animated.View
+              style={{
+                opacity: helpTextAnimatedValue,
+                transform: [
+                  {
+                    scale: helpTextAnimatedValue.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0.8, 1],
+                    }),
+                  },
+                ],
+              }}
+            >
+              <Text style={styles.helpText}>
+                Сума може мати лише цифри та десяткову крапку
+              </Text>
+            </Animated.View>
           )}
 
           <TextInput
