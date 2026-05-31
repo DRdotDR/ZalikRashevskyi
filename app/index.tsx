@@ -22,6 +22,7 @@ export default function HomeScreen() {
   const [date, setDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [suggestedCategories, setSuggestedCategories] = useState<string[]>([]);
 
   const addTransaction = () => {
     if (!amount || !category) return;
@@ -44,6 +45,27 @@ export default function HomeScreen() {
       setDate(selectedDate);
     }
     setShowDatePicker(false);
+  };
+
+  const handleCategoryChange = (text: string) => {
+    setCategory(text);
+    
+    if (text.trim() === "") {
+      setSuggestedCategories([]);
+      return;
+    }
+    
+    const existingCategories = [...new Set(transactions.map(t => t.category))];
+    const filtered = existingCategories.filter(cat =>
+      cat.toLowerCase().includes(text.toLowerCase())
+    );
+    
+    setSuggestedCategories(filtered);
+  };
+
+  const selectCategory = (selectedCategory: string) => {
+    setCategory(selectedCategory);
+    setSuggestedCategories([]);
   };
 
   const total = transactions.reduce(
@@ -83,8 +105,22 @@ export default function HomeScreen() {
         style={styles.input}
         placeholder="Категорія"
         value={category}
-        onChangeText={setCategory}
+        onChangeText={handleCategoryChange}
       />
+
+      {suggestedCategories.length > 0 && (
+        <View style={styles.suggestionsContainer}>
+          {suggestedCategories.map((cat) => (
+            <TouchableOpacity
+              key={cat}
+              style={styles.suggestionItem}
+              onPress={() => selectCategory(cat)}
+            >
+              <Text style={styles.suggestionText}>{cat}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
 
       <TouchableOpacity
         style={styles.dateButton}
@@ -182,6 +218,25 @@ const styles = StyleSheet.create({
   dateButtonText: {
     fontSize: 16,
     color: "#333",
+  },
+  suggestionsContainer: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderTopWidth: 0,
+    marginTop: -10,
+    marginBottom: 10,
+    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 8,
+    backgroundColor: "#fff",
+  },
+  suggestionItem: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
+  },
+  suggestionText: {
+    fontSize: 14,
+    color: "#007AFF",
   },
   group: {
     marginBottom: 15,
