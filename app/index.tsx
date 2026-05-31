@@ -1,11 +1,12 @@
+import DateTimePicker from "@react-native-community/datetimepicker";
 import React, { useState } from "react";
 import {
-  View,
+  FlatList,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  FlatList,
-  StyleSheet,
+  View,
 } from "react-native";
 
 type Transaction = {
@@ -18,6 +19,8 @@ type Transaction = {
 export default function HomeScreen() {
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
+  const [date, setDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
 
   const addTransaction = () => {
@@ -27,12 +30,20 @@ export default function HomeScreen() {
       id: Date.now().toString(),
       amount: Number(amount),
       category,
-      date: new Date().toLocaleDateString(),
+      date: date.toLocaleDateString(),
     };
 
     setTransactions([transaction, ...transactions]);
     setAmount("");
     setCategory("");
+    setDate(new Date());
+  };
+
+  const handleDateChange = (event: any, selectedDate: Date | undefined) => {
+    if (selectedDate) {
+      setDate(selectedDate);
+    }
+    setShowDatePicker(false);
   };
 
   const total = transactions.reduce(
@@ -76,11 +87,29 @@ export default function HomeScreen() {
       />
 
       <TouchableOpacity
+        style={styles.dateButton}
+        onPress={() => setShowDatePicker(true)}
+      >
+        <Text style={styles.dateButtonText}>
+          Дата: {date.toLocaleDateString()}
+        </Text>
+      </TouchableOpacity>
+
+      {showDatePicker && (
+        <DateTimePicker
+          value={date}
+          mode="date"
+          display="default"
+          onChange={handleDateChange}
+        />
+      )}
+
+      <TouchableOpacity
         style={styles.button}
         onPress={addTransaction}
       >
         <Text style={styles.buttonText}>
-          Add Transaction
+          Додати транзакцію
         </Text>
       </TouchableOpacity>
 
@@ -141,6 +170,18 @@ const styles = StyleSheet.create({
     color: "white",
     textAlign: "center",
     fontWeight: "bold",
+  },
+  dateButton: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 10,
+    marginBottom: 10,
+    borderRadius: 8,
+    backgroundColor: "#f9f9f9",
+  },
+  dateButtonText: {
+    fontSize: 16,
+    color: "#333",
   },
   group: {
     marginBottom: 15,
