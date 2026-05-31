@@ -68,6 +68,9 @@ export default function HomeScreen() {
     setSuggestedCategories([]);
   };
 
+  const isAmountValid = amount === "" ? false : !isNaN(Number(amount)) && Number(amount) > 0;
+  const isFormComplete = amount && category && isAmountValid;
+
   const total = transactions.reduce(
     (sum, item) => sum + item.amount,
     0
@@ -94,12 +97,16 @@ export default function HomeScreen() {
       </Text>
 
       <TextInput
-        style={styles.input}
+        style={[styles.input, !isAmountValid && amount !== "" && styles.inputError]}
         placeholder="Сума"
         keyboardType="numeric"
         value={amount}
         onChangeText={setAmount}
       />
+
+      {!isAmountValid && amount !== "" && (
+        <Text style={styles.helpText}>Сума може мати лише цифри та десяткову крапку</Text>
+      )}
 
       <TextInput
         style={styles.input}
@@ -141,10 +148,11 @@ export default function HomeScreen() {
       )}
 
       <TouchableOpacity
-        style={styles.button}
+        style={[styles.button, !isFormComplete && styles.buttonDisabled]}
         onPress={addTransaction}
+        disabled={!isFormComplete}
       >
-        <Text style={styles.buttonText}>
+        <Text style={[styles.buttonText, !isFormComplete && styles.buttonDisabledText]}>
           Додати транзакцію
         </Text>
       </TouchableOpacity>
@@ -196,6 +204,17 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     borderRadius: 8,
   },
+  inputError: {
+    borderColor: "#ff0000",
+    backgroundColor: "#ffe6e6",
+  },
+  helpText: {
+    color: "#ff0000",
+    fontSize: 12,
+    marginTop: -8,
+    marginBottom: 10,
+    paddingLeft: 10,
+  },
   button: {
     backgroundColor: "#007AFF",
     padding: 12,
@@ -206,6 +225,12 @@ const styles = StyleSheet.create({
     color: "white",
     textAlign: "center",
     fontWeight: "bold",
+  },
+  buttonDisabled: {
+    backgroundColor: "#cccccc",
+  },
+  buttonDisabledText: {
+    color: "#666666",
   },
   dateButton: {
     borderWidth: 1,
