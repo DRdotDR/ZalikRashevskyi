@@ -4,6 +4,8 @@ import { TransactionForm } from "../components/TransactionForm";
 import { TransactionList } from "../components/TransactionList";
 import { Transaction } from "../types/Transaction";
 
+const locale = new Intl.DateTimeFormat("uk-UA");
+
 export default function HomeScreen() {
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
@@ -20,7 +22,7 @@ export default function HomeScreen() {
       id: Date.now().toString(),
       amount: Number(amount),
       category,
-      date: date.toLocaleDateString(),
+      date: locale.format(date),
     };
 
     setTransactions([transaction, ...transactions]);

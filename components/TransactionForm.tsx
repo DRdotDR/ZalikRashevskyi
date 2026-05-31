@@ -10,6 +10,8 @@ import {
     View,
 } from "react-native";
 
+const locale = new Intl.DateTimeFormat("uk-UA");
+
 interface TransactionFormProps {
   visible: boolean;
   onClose: () => void;
@@ -161,7 +163,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
 
           <TouchableOpacity style={styles.dateButton} onPress={onDatePress}>
             <Text style={styles.dateButtonText}>
-              Дата: {date.toLocaleDateString()}
+              Дата: {locale.format(date)}
             </Text>
           </TouchableOpacity>
 
@@ -170,6 +172,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
               value={date}
               mode="date"
               display="default"
+              locale="uk-UA"
               onChange={onDateChange}
             />
           )}

@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ddd",
     borderRadius: 8,
-    backgroundColor: "#cfcdcd",
+    backgroundColor: "#a5b7d8",
   },
   date: {
     fontWeight: "bold",
